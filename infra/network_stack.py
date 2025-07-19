@@ -9,10 +9,10 @@ class NetworkStack(Stack):
         self.vpc = ec2.Vpc(
             self, "PortfolioVPC",
             max_azs=2,
-            nat_gateways=0,
+            nat_gateways=1,
             subnet_configuration=[
                 ec2.SubnetConfiguration(name="Public", subnet_type=ec2.SubnetType.PUBLIC, cidr_mask=24),
-                ec2.SubnetConfiguration(name="Private", subnet_type=ec2.SubnetType.PRIVATE_ISOLATED, cidr_mask=24)
+                ec2.SubnetConfiguration(name="Private", subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS, cidr_mask=24)
             ]
         )
         
@@ -91,6 +91,6 @@ class NetworkStack(Stack):
                     port=443
                 ),
                 private_dns_enabled=True,
-                subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
-                security_groups=[self.ssm_endpoint_sg]  # 必要に応じてSG変更
+                subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS),
+                security_groups=[self.ssm_endpoint_sg] 
             )

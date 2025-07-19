@@ -4,6 +4,7 @@ from aws_cdk import (
     aws_autoscaling as autoscaling,
     aws_elasticloadbalancingv2 as elbv2,
     aws_cloudwatch as cloudwatch,
+    aws_iam as iam,
     Duration
 )
 from constructs import Construct
@@ -11,7 +12,16 @@ from constructs import Construct
 class ComputeStack(Stack):
     def __init__(self, scope: Construct, id: str, vpc: ec2.Vpc, ec2_sg: ec2.SecurityGroup, alb_sg: ec2.SecurityGroup, **kwargs):
         super().__init__(scope, id, **kwargs)
-
+        
+        # 1. IAMロールの作成（Session Manager用）
+        ec2_role = iam.Role(
+            self, "EC2SSMRole",
+            assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"),
+            managed_policies=[
+                iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSSMManagedInstanceCore")
+            ]
+        )
+        
         # EC2にhttpdをインストールしindex.htmlを配置
         user_data = ec2.UserData.for_linux()
         user_data.add_commands(
@@ -29,11 +39,12 @@ class ComputeStack(Stack):
             instance_type=ec2.InstanceType("t2.micro"),
             machine_image=ec2.MachineImage.latest_amazon_linux2023(),
             security_group=ec2_sg,
-            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
+            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS),
             desired_capacity=2,
             min_capacity=1,
             max_capacity=3,
-            user_data=user_data
+            user_data=user_data,
+            role=ec2_role
         )
         
         # CloudWatch メトリクスを定義(cpu使用率)

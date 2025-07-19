@@ -25,7 +25,7 @@ class DatabaseStack(Stack):
             allocated_storage=20,
             max_allocated_storage=20,
             security_groups=[rds_sg],
-            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
+            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS),
             publicly_accessible=False,
             database_name="appdb",
             credentials=rds.Credentials.from_generated_secret("db_admin"),
