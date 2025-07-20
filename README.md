@@ -63,5 +63,5 @@ RDS は RemovalPolicy.RETAIN を指定して、誤削除を防止
 -  EC2 インスタンスに Session Manager 経由でアクセス成功  
   ![ssm_access](evidence/ssm_access.png)
 
--  ALB 経由で EC2 上の Web アプリにアクセス成功（200 OK）  
+-  ALB 経由で EC2 上の Web サイトにアクセス成功  
   ![alb_access](evidence/alb_access.png)
